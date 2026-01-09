@@ -1,6 +1,4 @@
-
 import os
-import yaml
 import json
 from openai import OpenAI
 from config import Config
@@ -9,15 +7,36 @@ class AnalyzerService:
     def __init__(self):
         Config.validate_keys()
         self.client = OpenAI(api_key=Config.OPENAI_API_KEY)
-        self.prompts = self._load_prompts()
+        self.prompts = {
+            "default_analysis": {
+                "system": "You are an expert academic researcher assisting with a systematic literature review.",
+                "user": """Please analyze the following scientific paper content and extract the desired information.
+
+PAPER CONTENT:
+{text}
+
+INSTRUCTIONS:
+Provide a JSON response with the following fields:
+- Summary: A concise summary of the paper (max 150 words).
+- Methodology: validation method used (e.g., case study, experiment, survey).
+- Key Findings: Bullet points of main results.
+- Research Gap: What problem does this paper solve?
+- Limitations: Any mentioned limitations.
+
+If information is missing, use "N/A"."""
+            },
+            "summarization": {
+                "system": "You are a helpful research assistant.",
+                "user": """Summarize the following paper in less than 200 words, focusing on the contribution and results.
+
+TEXT:
+{text}"""
+            }
+        }
 
     def _load_prompts(self):
-        try:
-            with open(os.path.join(os.path.dirname(__file__), "..", "prompts.yaml"), "r") as f:
-                return yaml.safe_load(f)
-        except Exception as e:
-            print(f"Error loading prompts: {e}")
-            return {}
+        # Deprecated
+        return self.prompts
 
     def analyze_text(self, text: str, prompt_key: str = "default_analysis", custom_fields: list = None, model: str = "gpt-5-mini") -> dict:
         """
