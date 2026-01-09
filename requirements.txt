@@ -1,0 +1,16 @@
+streamlit
+pandas
+openpyxl
+python-dotenv
+openai
+pyyaml
+arxiv
+requests
+beautifulsoup4
+undetected-chromedriver
+selenium
+pymupdf
+biopython
+scihub-py
+tqdm
+git+https://github.com/JosephIsaacTurner/pypaperretriever.git
