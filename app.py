@@ -48,7 +48,7 @@ def get_services():
 
     return services
 
-def run_analysis(files_to_process, fields, services):
+def run_analysis(files_to_process, fields, services, model_name):
     results = []
     progress_bar = st.progress(0)
     status_text = st.empty()
@@ -62,7 +62,7 @@ def run_analysis(files_to_process, fields, services):
         
         if text:
             # Analyze with CUSTOM FIELDS
-            analysis = services['analyzer'].analyze_text(text, custom_fields=fields)
+            analysis = services['analyzer'].analyze_text(text, custom_fields=fields, model=model_name)
             
             res_entry = {"Filename": filename}
             if "error" not in analysis:
@@ -320,6 +320,10 @@ def main():
 
             st.divider()
 
+            # OpenAI Model Selector
+            st.markdown("### 🧠 AI Configuration")
+            model_name = st.text_input("OpenAI Model Name", value="gpt-4o-mini", help="Enter the model ID from OpenAI (e.g., gpt-4o, gpt-4o-mini, gpt-3.5-turbo)")
+
             # Selection
             selection_mode = st.radio("Selection Mode", ["All", "Pick manually"])
             selected_files = files
@@ -333,7 +337,7 @@ def main():
                 elif not st.session_state.extraction_fields:
                     st.error("Please add at least one extraction field.")
                 else:
-                    run_analysis(selected_files, st.session_state.extraction_fields, services)
+                    run_analysis(selected_files, st.session_state.extraction_fields, services, model_name)
             
             # --- Test Run Feature ---
             if st.button("🧪 Test Run (Analyze 1st Paper Only)", help="Run analysis on just the first paper to verify your fields/prompts without spending too much."):
@@ -344,7 +348,7 @@ def main():
                 else:
                     target_file = [selected_files[0]]
                     st.toast(f"🧪 Testing on: {os.path.basename(target_file[0])}...", icon="🧪")
-                    run_analysis(target_file, st.session_state.extraction_fields, services)
+                    run_analysis(target_file, st.session_state.extraction_fields, services, model_name)
                         
         else:
             st.warning(f"Download directory '{Config.DOWNLOAD_DIR}' does not exist yet.")

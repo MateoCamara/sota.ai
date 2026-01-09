@@ -19,7 +19,7 @@ class AnalyzerService:
             print(f"Error loading prompts: {e}")
             return {}
 
-    def analyze_text(self, text: str, prompt_key: str = "default_analysis", custom_fields: list = None) -> dict:
+    def analyze_text(self, text: str, prompt_key: str = "default_analysis", custom_fields: list = None, model: str = "gpt-4o-mini") -> dict:
         """
         Analyze text using OpenAI API.
         If custom_fields is provided, it dynamically constructs the prompt.
@@ -64,7 +64,7 @@ class AnalyzerService:
 
         try:
             response = self.client.chat.completions.create(
-                model="gpt-4o",
+                model=model,
                 messages=[
                     {"role": "system", "content": system_msg},
                     {"role": "user", "content": user_msg}
