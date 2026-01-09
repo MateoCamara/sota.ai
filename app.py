@@ -123,7 +123,11 @@ def main():
         limit = st.number_input("Max Papers to Download", min_value=1, max_value=1000, value=5)
         
         # Interactive Mode Toggle
-        interactive_mode = st.checkbox("🙋‍♂️ Interactive Mode (I am present to solve CAPTCHAs)", value=True, help="If checked, the system will pause and wait for you when it detects a CAPTCHA or Cloudflare block.")
+        col_inter, col_sound = st.columns([3, 1])
+        with col_inter:
+            interactive_mode = st.checkbox("🙋‍♂️ Interactive Mode (I am present to solve CAPTCHAs)", value=True, help="If checked, the system will pause and wait for you when it detects a CAPTCHA or Cloudflare block.")
+        with col_sound:
+            sound_alert = st.checkbox("🔔 Sound Alert", value=False, help="Play a sound when a CAPTCHA is detected.")
         
         if st.button("🚀 Start Search & Download", type="primary"):
             if not query:
@@ -171,7 +175,7 @@ def main():
                         # 1.5 Try Deep Page Crawl
                         if paper.get('URL') and paper['URL'].startswith('http'):
                              status_text.text(f"🕵️ Deep Crawling: {title[:30]}...")
-                             found_pdf = services['deep_crawler'].find_pdf_link(paper['URL'], interactive=interactive_mode)
+                             found_pdf = services['deep_crawler'].find_pdf_link(paper['URL'], interactive=interactive_mode, sound_alert=sound_alert)
                              if found_pdf:
                                  status_text.text(f"   found: {found_pdf[:30]}...")
                                  res = services['downloader'].download_from_url(found_pdf, title)

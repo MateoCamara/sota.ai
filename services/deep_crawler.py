@@ -4,6 +4,11 @@ from bs4 import BeautifulSoup
 import re
 import urllib.parse
 import os
+try:
+    import winsound
+    SOUND_AVAILABLE = True
+except ImportError:
+    SOUND_AVAILABLE = False
 
 try:
     import undetected_chromedriver as uc
@@ -62,7 +67,7 @@ class DeepPDFCrawler:
         ]
     }
 
-    def find_pdf_link(self, url: str, interactive: bool = False) -> str:
+    def find_pdf_link(self, url: str, interactive: bool = False, sound_alert: bool = False) -> str:
         """
         Visits the URL and attempts to return a direct PDF link.
         """
@@ -110,6 +115,12 @@ class DeepPDFCrawler:
                         if blocked:
                             if waited % 5 == 0:
                                 print(f"⚠️  Detectado Bloqueo/Captcha. Esperando al usuario... ({waited}s)")
+                                if sound_alert and SOUND_AVAILABLE:
+                                    # Play a system sound (Frequency 1000Hz, Duration 500ms)
+                                    try:
+                                        winsound.Beep(1000, 500)
+                                    except:
+                                        pass
                             time.sleep(2)
                             waited += 2
                         else:
