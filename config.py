@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    WOS_API_KEY = os.getenv("WOS_API_KEY")
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     
     # Defaults
@@ -15,8 +14,6 @@ class Config:
     @staticmethod
     def validate_keys():
         missing = []
-        if not Config.WOS_API_KEY:
-            missing.append("WOS_API_KEY")
         if not Config.OPENAI_API_KEY:
             missing.append("OPENAI_API_KEY")
         

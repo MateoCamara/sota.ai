@@ -14,7 +14,7 @@ from user_friendly.services.arxiv_service import ArxivService
 from user_friendly.services.pubmed_service import PubMedService
 from user_friendly.services.scholar_service import ScholarService
 from user_friendly.services.deep_crawler import DeepPDFCrawler
-from user_friendly.services.wos_service import WosService
+
 from services.downloader_service import DownloaderService
 from services.pdf_processor import PDFProcessor
 from services.analyzer_service import AnalyzerService
@@ -30,7 +30,7 @@ def get_services():
     services = st.session_state.services
     
     # Lazy initialization of services to handle reloads/updates
-    if 'wos' not in services: services['wos'] = WosService()
+
     if 'arxiv' not in services: services['arxiv'] = ArxivService()
     if 'pubmed' not in services: services['pubmed'] = PubMedService()
     if 'scholar' not in services: services['scholar'] = ScholarService()
@@ -97,8 +97,7 @@ def main():
     # Check API Keys
     if not Config.OPENAI_API_KEY:
         st.error("❌ OPENAI_API_KEY missing in .env")
-    if not Config.WOS_API_KEY:
-        st.warning("⚠️ WOS_API_KEY missing (Search will be disabled)")
+
 
     services = get_services()
     
@@ -111,7 +110,6 @@ def main():
         
         # Source Selector
         source = st.selectbox("Select Source", [
-            "Web of Science (API Key Required)", 
             "ArXiv (Free - CS/Math/Physics)", 
             "PubMed (Free - Medical)",
             "Google Scholar (Free - Scraper w/ Captcha)"
@@ -133,9 +131,7 @@ def main():
             else:
                 papers = []
                 with st.spinner(f"Searching {source}..."):
-                    if "Web of Science" in source:
-                        papers = services['wos'].search_papers(query, limit=limit)
-                    elif "ArXiv" in source:
+                    if "ArXiv" in source:
                         papers = services['arxiv'].search_papers(query, limit=limit)
                     elif "PubMed" in source:
                         papers = services['pubmed'].search_papers(query, limit=limit)

@@ -9,7 +9,7 @@ from tqdm import tqdm
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from user_friendly.config import Config
-from user_friendly.services.wos_service import WosService
+from user_friendly.services.arxiv_service import ArxivService
 from user_friendly.services.downloader_service import DownloaderService
 from user_friendly.services.pdf_processor import PDFProcessor
 from user_friendly.services.analyzer_service import AnalyzerService
@@ -71,7 +71,7 @@ def main():
     parser = argparse.ArgumentParser(description="User-Friendly Paper Analyzer")
     
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--query", help="Search query for Web of Science")
+    group.add_argument("--query", help="Search query for ArXiv")
     group.add_argument("--excel", help="Path to input Excel file with titles")
     
     parser.add_argument("--limit", type=int, default=5, help="Max number of papers to process")
@@ -82,7 +82,7 @@ def main():
     
     # Initialize services
     print("Initializing services...")
-    wos = WosService()
+    search_service = ArxivService()
     downloader = DownloaderService(Config.DOWNLOAD_DIR)
     pdf_processor = PDFProcessor()
     analyzer = AnalyzerService()
@@ -91,8 +91,8 @@ def main():
     
     # Mode 1: Search
     if args.query:
-        print(f"Searching WoS for: {args.query}")
-        papers = wos.search_papers(args.query, limit=args.limit)
+        print(f"Searching ArXiv for: {args.query}")
+        papers = search_service.search_papers(args.query, limit=args.limit)
         # Extract titles
         for p in papers:
             papers_to_process.append(p.get("Title"))
