@@ -5,7 +5,7 @@
 
 # 📚 SOTAi Paper Analyzer
 
-![Python](https://img.shields.io/badge/python-3.8+-blue) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://<tu‑subdominio>.streamlit.app) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/MateoCamara/sota.ai/pulls) [![Code Style](https://img.shields.io/badge/code%20style-PEP8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
+![Python](https://img.shields.io/badge/python-3.8+-blue) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/MateoCamara/sota.ai/pulls) [![Code Style](https://img.shields.io/badge/code%20style-PEP8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
 
 SOTAi is an intelligent tool designed to automate the retrieval, downloading, and analysis of academic papers. It streamlines the research process by connecting to major scientific databases and leveraging Large Language Models (LLMs) to extract key insights from PDF documents.
 
