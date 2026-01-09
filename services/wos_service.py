@@ -6,7 +6,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from wos_client import create_wos_client
-from user_friendly.config import Config
+from config import Config
 
 class WosService:
     def __init__(self):

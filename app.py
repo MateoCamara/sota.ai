@@ -10,10 +10,10 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from config import Config
-from user_friendly.services.arxiv_service import ArxivService
-from user_friendly.services.pubmed_service import PubMedService
-from user_friendly.services.scholar_service import ScholarService
-from user_friendly.services.deep_crawler import DeepPDFCrawler
+from services.arxiv_service import ArxivService
+from services.pubmed_service import PubMedService
+from services.scholar_service import ScholarService
+from services.deep_crawler import DeepPDFCrawler
 
 from services.downloader_service import DownloaderService
 from services.pdf_processor import PDFProcessor

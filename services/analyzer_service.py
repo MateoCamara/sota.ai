@@ -3,7 +3,7 @@ import os
 import yaml
 import json
 from openai import OpenAI
-from user_friendly.config import Config
+from config import Config
 
 class AnalyzerService:
     def __init__(self):

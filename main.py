@@ -8,12 +8,12 @@ from tqdm import tqdm
 # Add current dir to path to find packages
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from user_friendly.config import Config
-from user_friendly.services.arxiv_service import ArxivService
-from user_friendly.services.downloader_service import DownloaderService
-from user_friendly.services.pdf_processor import PDFProcessor
-from user_friendly.services.analyzer_service import AnalyzerService
-from user_friendly.utils.excel_handler import ExcelHandler
+from config import Config
+from services.arxiv_service import ArxivService
+from services.downloader_service import DownloaderService
+from services.pdf_processor import PDFProcessor
+from services.analyzer_service import AnalyzerService
+from utils.excel_handler import ExcelHandler
 
 def process_paper(title, downloader, pdf_processor, analyzer, prompt_key="default_analysis"):
     """
