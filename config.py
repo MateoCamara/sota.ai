@@ -9,7 +9,7 @@ class Config:
     
     # Defaults
     DOWNLOAD_DIR = "downloaded_papers"
-    OUTPUT_FILE = "analysis_results.xlsx"
+    OUTPUT_FILE = "results/analysis_results.xlsx"
     
     @staticmethod
     def validate_keys():
