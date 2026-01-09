@@ -84,7 +84,7 @@ def run_analysis(files_to_process, fields, services, model_name):
         st.dataframe(df_res)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_filename = f"analysis_results_{timestamp}.xlsx"
+        output_filename = f"results/analysis_results_{timestamp}.xlsx"
         ExcelHandler.save_results(results, output_filename)
         st.success(f"Analysis complete! Saved to {output_filename}")
         
@@ -336,7 +336,7 @@ def main():
 
             # OpenAI Model Selector
             st.markdown("### 🧠 AI Configuration")
-            model_name = st.text_input("OpenAI Model Name", value="gpt-4o-mini", help="Enter the model ID from OpenAI (e.g., gpt-4o, gpt-4o-mini, gpt-3.5-turbo)")
+            model_name = st.text_input("OpenAI Model Name", value="gpt-5-mini", help="Enter the model ID from OpenAI (e.g., gpt-4o, gpt-4o-mini, gpt-3.5-turbo)")
 
             # Selection
             selection_mode = st.radio("Selection Mode", ["All", "Pick manually"])

@@ -19,7 +19,7 @@ class AnalyzerService:
             print(f"Error loading prompts: {e}")
             return {}
 
-    def analyze_text(self, text: str, prompt_key: str = "default_analysis", custom_fields: list = None, model: str = "gpt-4o-mini") -> dict:
+    def analyze_text(self, text: str, prompt_key: str = "default_analysis", custom_fields: list = None, model: str = "gpt-5-mini") -> dict:
         """
         Analyze text using OpenAI API.
         If custom_fields is provided, it dynamically constructs the prompt.
