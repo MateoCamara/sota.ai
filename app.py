@@ -162,6 +162,20 @@ def main():
                         title = paper.get('Title', 'Unknown')
                         status_text.text(f"Downloading {i+1}/{len(papers)}: {title[:50]}...")
                         
+                        # SPECIAL CASE: ArXiv (Use library as requested)
+                        if "ArXiv" in paper.get('Source', ''):
+                             status_text.text(f"Using ArXiv Library for: {title[:30]}...")
+                             # Construct generic filename path first to pass to downloader
+                             import re
+                             safe_title = re.sub(r'[^\w\s-]', '', title).strip() + ".pdf"
+                             output_path = os.path.join(Config.DOWNLOAD_DIR, safe_title)
+                             
+                             res = services['arxiv'].download_paper(paper.get('URL', ''), output_path)
+                             if res['success']:
+                                 downloaded_count += 1
+                                 st.toast(f"✅ Downloaded (ArXiv Lib): {title[:30]}...", icon="✅")
+                                 continue
+
                         # 1. Try Direct PDF Link from Scholar
                         if paper.get('PDF_Link'):
                              status_text.text(f"Trying Direct Link for: {title[:30]}...")
