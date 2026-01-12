@@ -81,7 +81,10 @@ def run_analysis(files_to_process, fields, services, model_name):
     # Save results
     if results:
         df_res = pd.DataFrame(results)
-        st.dataframe(df_res)
+        # Convert all values to strings to avoid PyArrow mixed type errors
+        # (LLM can return lists, strings, or None for the same field across papers)
+        df_display = df_res.astype(str)
+        st.dataframe(df_display)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_filename = f"results/analysis_results_{timestamp}.xlsx"
