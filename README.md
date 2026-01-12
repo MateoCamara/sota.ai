@@ -20,6 +20,12 @@ This application allows researchers to:
 3.  **Analyze** the content of the papers using OpenAI's GPT models (configurable). You can define custom extraction fields (e.g., "Main Contribution", "Dataset Used", "Accuracy") to get structured data from unstructured text.
 4.  **Export** the results into an Excel report for easy comparison and review.
 
+## 🎬 Demo
+
+Watch the full walkthrough to see SOTAi in action:
+
+[![SOTAi Demo](https://img.youtube.com/vi/aif6k0yzXZw/maxresdefault.jpg)](https://www.youtube.com/watch?v=aif6k0yzXZw)
+
 ## ⚙️ How it works
 
 The system is built with a modular architecture:
