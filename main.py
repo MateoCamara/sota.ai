@@ -15,7 +15,8 @@ from services.pdf_processor import PDFProcessor
 from services.analyzer_service import AnalyzerService
 from utils.excel_handler import ExcelHandler
 
-def process_paper(title, downloader, pdf_processor, analyzer, prompt_key="default_analysis"):
+def process_paper(title, downloader, pdf_processor, analyzer, prompt_key="default_analysis",
+                  model="gpt-4o-mini", provider="openai"):
     """
     Process a single paper: Download -> Extract -> Analyze
     """
@@ -25,34 +26,34 @@ def process_paper(title, downloader, pdf_processor, analyzer, prompt_key="defaul
         "PDF_Path": "",
         "Analysis": {}
     }
-    
+
     # 1. Download
     print(f"\n[1/3] Downloading '{title[:50]}...'")
     download_res = downloader.download_paper(title)
-    
+
     if not download_res['success']:
         print(f"❌ Download failed: {download_res['message']}")
         result["Error"] = download_res['message']
         return result
-        
+
     pdf_path = download_res['filepath']
     result["PDF_Path"] = pdf_path
-    
+
     # 2. Extract Text
     print(f"[2/3] Extracting text from {os.path.basename(pdf_path)}...")
     text = pdf_processor.extract_text(pdf_path, max_pages=20) # Limit pages for speed/cost
-    
+
     if not text:
         print("❌ Text extraction failed (empty or protected PDF)")
         result["Status"] = "Extraction Failed"
         return result
-        
+
     print(f"✅ Extracted {len(text)} characters")
-    
+
     # 3. Analyze
-    print(f"[3/3] Analyzing with AI...")
-    analysis = analyzer.analyze_text(text, prompt_key=prompt_key)
-    
+    print(f"[3/3] Analyzing with AI ({provider}: {model})...")
+    analysis = analyzer.analyze_text(text, prompt_key=prompt_key, model=model, provider=provider)
+
     if "error" in analysis:
         print(f"❌ Analysis failed: {analysis['error']}")
         result["Status"] = "Analysis Failed"
@@ -64,21 +65,35 @@ def process_paper(title, downloader, pdf_processor, analyzer, prompt_key="defaul
         # Flatten analysis for Excel
         for k, v in analysis.items():
             result[f"AI_{k}"] = v
-            
+
     return result
 
 def main():
     parser = argparse.ArgumentParser(description="User-Friendly Paper Analyzer")
-    
+
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--query", help="Search query for ArXiv")
     group.add_argument("--excel", help="Path to input Excel file with titles")
-    
+
     parser.add_argument("--limit", type=int, default=5, help="Max number of papers to process")
     parser.add_argument("--output", default=Config.OUTPUT_FILE, help="Output Excel file")
     parser.add_argument("--prompt", default="default_analysis", help="Prompt key from prompts.yaml")
-    
+    parser.add_argument("--provider", choices=["openai", "ollama"], default="openai",
+                        help="LLM provider: openai or ollama (default: openai)")
+    parser.add_argument("--model", default=None,
+                        help="Model name (default: gpt-4o-mini for openai, llama3 for ollama)")
+    parser.add_argument("--ollama-url", default=None,
+                        help="Ollama server URL (default: http://localhost:11434)")
+
     args = parser.parse_args()
+
+    # Set default model based on provider if not specified
+    if args.model is None:
+        args.model = "gemma3:1b" if args.provider == "ollama" else "gpt-4o-mini"
+
+    # Override Ollama URL if provided
+    if args.ollama_url:
+        Config.OLLAMA_BASE_URL = args.ollama_url
     
     # Initialize services
     print("Initializing services...")
@@ -113,11 +128,13 @@ def main():
         return
         
     print(f"Found {len(papers_to_process)} papers. Starting processing...")
-    
+    print(f"Using {args.provider} with model: {args.model}")
+
     results = []
     for title in tqdm(papers_to_process):
         try:
-            res = process_paper(title, downloader, pdf_processor, analyzer, args.prompt)
+            res = process_paper(title, downloader, pdf_processor, analyzer, args.prompt,
+                               model=args.model, provider=args.provider)
             results.append(res)
         except Exception as e:
             print(f"Unexpected error for {title}: {e}")

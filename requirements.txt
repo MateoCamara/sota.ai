@@ -3,6 +3,7 @@ pandas
 openpyxl
 python-dotenv
 openai
+ollama
 pyyaml
 arxiv
 requests

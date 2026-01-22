@@ -17,7 +17,7 @@ This application allows researchers to:
     *   **PubMed** (Medical & Life Sciences)
     *   **Google Scholar** (General scraping with CAPTCHA handling)
 2.  **Download** full-text PDFs automatically, utilizing direct links, deep web crawling, or libraries like `arxiv` and `pypaperretriever`.
-3.  **Analyze** the content of the papers using OpenAI's GPT models (configurable). You can define custom extraction fields (e.g., "Main Contribution", "Dataset Used", "Accuracy") to get structured data from unstructured text.
+3.  **Analyze** the content of the papers using OpenAI's GPT models or local models via **Ollama** (configurable). You can define custom extraction fields (e.g., "Main Contribution", "Dataset Used", "Accuracy") to get structured data from unstructured text.
 4.  **Export** the results into an Excel report for easy comparison and review.
 
 ## 🎬 Demo
@@ -35,13 +35,13 @@ The system is built with a modular architecture:
     *   **Deep Crawl**: Visits the paper's landing page to find the PDF button, with capabilities to handle interactive challenges (CAPTCHAs).
     *   DOI resolution via Unpaywall or SciHub fallbacks.
 *   **PDF Processor**: Extracts raw text from the downloaded PDF files.
-*   **AI Analyzer**: Sends the extracted text to an OpenAI model (default: `gpt-5-mini`) with a dynamically constructed prompt based on your custom questions. It returns structured JSON data.
+*   **AI Analyzer**: Sends the extracted text to an LLM (OpenAI or Ollama) with a dynamically constructed prompt based on your custom questions. It returns structured JSON data.
 
 ## 🛠️ How to use
 
 ### Prerequisites
 *   Python 3.8+
-*   An OpenAI API Key (set in `.env`)
+*   **Either** an OpenAI API Key **or** Ollama installed locally
 
 ### Installation
 
@@ -57,9 +57,11 @@ The system is built with a modular architecture:
     ```
 
 3.  **Configure your environment**:
-    
-    The application requires the `OPENAI_API_KEY` to be set in your **System Environment Variables**. 
-    
+
+    **Option A: OpenAI (Cloud)**
+
+    Set the `OPENAI_API_KEY` in your environment:
+
     *   **Windows (PowerShell)**:
         ```powershell
         $env:OPENAI_API_KEY="your-key-here"
@@ -68,8 +70,20 @@ The system is built with a modular architecture:
         ```bash
         export OPENAI_API_KEY="your-key-here"
         ```
-    
-    *(Note: The application also supports `.env` files if you prefer for local development, but system variables are recommended).*
+
+    *(The application also supports `.env` files for local development).*
+
+    **Option B: Ollama (Local)**
+
+    Run models locally without API keys:
+
+    1.  Install Ollama from [ollama.ai](https://ollama.ai)
+    2.  Pull a model:
+        ```bash
+        ollama pull gemma3:1b
+        ```
+    3.  The Ollama server starts automatically, or run `ollama serve`
+    4.  In the app, select "Ollama" as the LLM provider
 
 ### Running the App
 
@@ -83,7 +97,7 @@ streamlit run app.py
     *   Go to the "AI Analysis" tab.
     *   Define the fields you want to extract (e.g., "Methodology", "Results").
     *   Select the papers you want to analyze.
-    *   Configure the OpenAI Model Name (default: `gpt-5-mini`).
+    *   Choose your LLM provider (OpenAI or Ollama) and model.
     *   Click "Start AI Analysis".
 3.  **View Results**: The analysis will be displayed in a table and saved automatically to the `results/` folder as an Excel file.
 

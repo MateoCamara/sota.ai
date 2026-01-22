@@ -48,21 +48,21 @@ def get_services():
 
     return services
 
-def run_analysis(files_to_process, fields, services, model_name):
+def run_analysis(files_to_process, fields, services, model_name, provider="openai"):
     results = []
     progress_bar = st.progress(0)
     status_text = st.empty()
-    
+
     for i, filepath in enumerate(files_to_process):
         filename = os.path.basename(filepath)
         status_text.text(f"Analyzing {i+1}/{len(files_to_process)}: {filename}...")
-        
+
         # Extract
         text, error = services['pdf_processor'].extract_text(filepath, max_pages=15)
-        
+
         if text:
             # Analyze with CUSTOM FIELDS
-            analysis = services['analyzer'].analyze_text(text, custom_fields=fields, model=model_name)
+            analysis = services['analyzer'].analyze_text(text, custom_fields=fields, model=model_name, provider=provider)
             
             res_entry = {"Filename": filename}
             if "error" not in analysis:
@@ -96,11 +96,6 @@ def run_analysis(files_to_process, fields, services, model_name):
 
 def main():
     st.title("📚 SOTAi Paper Analyzer")
-    
-    # Check API Keys
-    if not Config.OPENAI_API_KEY:
-        st.error("❌ OPENAI_API_KEY missing in .env")
-
 
     services = get_services()
     
@@ -337,9 +332,33 @@ def main():
 
             st.divider()
 
-            # OpenAI Model Selector
+            # AI Configuration
             st.markdown("### 🧠 AI Configuration")
-            model_name = st.text_input("OpenAI Model Name", value="gpt-5-mini", help="Enter the model ID from OpenAI (e.g., gpt-4o, gpt-4o-mini, gpt-3.5-turbo)")
+
+            # Provider selector
+            provider = st.radio(
+                "LLM Provider",
+                ["OpenAI", "Ollama"],
+                horizontal=True,
+                help="Choose between OpenAI (cloud API) or Ollama (local)"
+            )
+            provider_key = provider.lower()
+
+            if provider_key == "openai":
+                if not Config.OPENAI_API_KEY:
+                    st.error("❌ OPENAI_API_KEY missing in .env")
+                model_name = st.text_input(
+                    "OpenAI Model Name",
+                    value="gpt-4o-mini",
+                    help="Enter the model ID from OpenAI (e.g., gpt-4o, gpt-4o-mini, gpt-3.5-turbo)"
+                )
+            else:
+                st.info(f"🦙 Using Ollama at {Config.OLLAMA_BASE_URL}")
+                model_name = st.text_input(
+                    "Ollama Model Name",
+                    value="gemma3:1b",
+                    help="Enter the model name you have pulled (e.g., gemma3:1b, llama3, mistral)"
+                )
 
             # Selection
             selection_mode = st.radio("Selection Mode", ["All", "Pick manually"])
@@ -353,19 +372,23 @@ def main():
                     st.error("No files selected")
                 elif not st.session_state.extraction_fields:
                     st.error("Please add at least one extraction field.")
+                elif provider_key == "openai" and not Config.OPENAI_API_KEY:
+                    st.error("Please set OPENAI_API_KEY in .env to use OpenAI")
                 else:
-                    run_analysis(selected_files, st.session_state.extraction_fields, services, model_name)
-            
+                    run_analysis(selected_files, st.session_state.extraction_fields, services, model_name, provider_key)
+
             # --- Test Run Feature ---
             if st.button("🧪 Test Run (Analyze 1st Paper Only)", help="Run analysis on just the first paper to verify your fields/prompts without spending too much."):
                 if not selected_files:
                     st.error("No files selected")
                 elif not st.session_state.extraction_fields:
                     st.error("Please add at least one extraction field.")
+                elif provider_key == "openai" and not Config.OPENAI_API_KEY:
+                    st.error("Please set OPENAI_API_KEY in .env to use OpenAI")
                 else:
                     target_file = [selected_files[0]]
                     st.toast(f"🧪 Testing on: {os.path.basename(target_file[0])}...", icon="🧪")
-                    run_analysis(target_file, st.session_state.extraction_fields, services, model_name)
+                    run_analysis(target_file, st.session_state.extraction_fields, services, model_name, provider_key)
                         
         else:
             st.warning(f"Download directory '{Config.DOWNLOAD_DIR}' does not exist yet.")
