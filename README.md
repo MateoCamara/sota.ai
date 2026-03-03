@@ -70,7 +70,7 @@ The system is built with a modular architecture:
         ```bash
         export OPENAI_API_KEY="your-key-here"
         ```
-
+    **Note:** This sets the variable only for the current PowerShell session.
     *(The application also supports `.env` files for local development).*
 
     **Option B: Ollama (Local)**
