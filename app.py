@@ -146,10 +146,25 @@ def main():
                 else:
                     st.success(f"Found {len(papers)} papers!")
                     
-                    df_papers = pd.DataFrame(papers)
-                    # Safe column selection
-                    cols_to_show = [c for c in ['Title', 'DOI', 'Publication_Year', 'Authors', 'PDF_Link'] if c in df_papers.columns]
-                    st.dataframe(df_papers[cols_to_show])
+                    # Show a JSON preview instead of a DataFrame (avoids Arrow conversion issues)
+                    preview_n = min(10, len(papers))
+                    preview_rows = []
+                    for p in papers[:preview_n]:
+                        if isinstance(p, dict):
+                            row = {
+                                "Title": p.get("Title", ""),
+                                "DOI": p.get("DOI", ""),
+                                "Publication_Year": p.get("Publication_Year", ""),
+                                "Authors": p.get("Authors", ""),
+                                "PDF_Link": p.get("PDF_Link", ""),
+                                "URL": p.get("URL", ""),
+                                "Source": p.get("Source", ""),
+                            }
+                            preview_rows.append({k: ("" if v is None else str(v)) for k, v in row.items()})
+                        else:
+                            preview_rows.append({"value": str(p)})
+                    
+                    st.json(preview_rows)
                     
                     # Download process
                     progress_bar = st.progress(0)
