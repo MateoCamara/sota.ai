@@ -264,7 +264,7 @@ def main():
                                 
                             progress_bar.progress((i + 1) / len(rows))
                             
-                        st.success(f"Downloaded {downloaded_count}/{len(titles)} papers")
+                        st.success(f"Downloaded {downloaded_count}/{len(rows)} papers")
                 else:
                     st.error("Excel must contain a 'title' column")
             except Exception as e:
