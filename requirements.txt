@@ -12,6 +12,6 @@ undetected-chromedriver
 selenium
 pymupdf
 biopython
-scihub-py
+scihub
 tqdm
 git+https://github.com/JosephIsaacTurner/pypaperretriever.git

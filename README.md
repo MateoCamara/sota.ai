@@ -47,7 +47,7 @@ The system is built with a modular architecture:
 
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/your-username/sota.ai.git
+    git clone https://github.com/MateoCamara/sota.ai.git
     cd sota.ai
     ```
 
@@ -70,7 +70,7 @@ The system is built with a modular architecture:
         ```bash
         export OPENAI_API_KEY="your-key-here"
         ```
-
+    **Note:** This sets the variable only for the current PowerShell session.
     *(The application also supports `.env` files for local development).*
 
     **Option B: Ollama (Local)**
