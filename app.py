@@ -13,6 +13,7 @@ from config import Config
 from services.arxiv_service import ArxivService
 from services.pubmed_service import PubMedService
 from services.scholar_service import ScholarService
+from services.openalex_service import OpenAlexService
 from services.deep_crawler import DeepPDFCrawler
 
 from services.downloader_service import DownloaderService
@@ -34,6 +35,10 @@ def get_services():
     if 'arxiv' not in services: services['arxiv'] = ArxivService()
     if 'pubmed' not in services: services['pubmed'] = PubMedService()
     if 'scholar' not in services: services['scholar'] = ScholarService()
+    if 'openalex' not in services:
+        services['openalex'] = OpenAlexService(
+            mailto=os.getenv("OPENALEX_MAILTO") or "anonymous@example.com",
+        )
     if 'deep_crawler' not in services: services['deep_crawler'] = DeepPDFCrawler()
     
     # Check if downloader is stale (missing new method)
@@ -116,14 +121,17 @@ def main():
         
         # Source Selector
         source = st.selectbox("Select Source", [
-            "ArXiv (Free - CS/Math/Physics)", 
+            "ArXiv (Free - CS/Math/Physics)",
             "PubMed (Free - Medical)",
-            "Google Scholar (Free - Scraper w/ Captcha)"
+            "Google Scholar (Free - Scraper w/ Captcha)",
+            "OpenAlex (Free - All disciplines, no auth)",
         ])
-        
+
         query_placeholder = '("Artificial Intelligence" OR "Machine Learning") AND "Medicine"'
         if "ArXiv" in source:
-             query_placeholder = 'ti:LLM AND abs:medicine'
+            query_placeholder = 'ti:LLM AND abs:medicine'
+        elif "OpenAlex" in source:
+            query_placeholder = '"vocal tract" AND ("speech synthesis" OR "voice synthesis")'
         
         query = st.text_area("Search Query", height=100, placeholder=query_placeholder)
         limit = st.number_input("Max Papers to Download", min_value=1, max_value=1000, value=5)
@@ -148,6 +156,8 @@ def main():
                     elif "Google Scholar" in source:
                         st.info("ℹ️ A browser window will open. Please solve any CAPTCHAs manually if they appear.")
                         papers = services['scholar'].search_papers(query, limit=limit)
+                    elif "OpenAlex" in source:
+                        papers = services['openalex'].search_papers(query, limit=limit)
                 
                 if not papers:
                     st.error("No papers found.")

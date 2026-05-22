@@ -16,6 +16,7 @@ This application allows researchers to:
     *   **ArXiv** (Computer Science, Math, Physics)
     *   **PubMed** (Medical & Life Sciences)
     *   **Google Scholar** (General scraping with CAPTCHA handling)
+    *   **OpenAlex** (~250M works across all disciplines — free, no auth, returns abstracts)
 2.  **Download** full-text PDFs automatically, utilizing direct links, deep web crawling, or libraries like `arxiv` and `pypaperretriever`.
 3.  **Analyze** the content of the papers using OpenAI's GPT models or local models via **Ollama** (configurable). You can define custom extraction fields (e.g., "Main Contribution", "Dataset Used", "Accuracy") to get structured data from unstructured text.
 4.  **Export** the results into an Excel report for easy comparison and review.
