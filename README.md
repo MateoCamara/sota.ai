@@ -32,7 +32,7 @@ The system is built with a modular architecture:
 *   **Search Services**: Specialized modules query APIs (ArXiv, PubMed) or scrape web results (Google Scholar/Selenium) to find paper metadata.
 *   **Downloader**: A robust download engine that attempts multiple strategies:
     *   Direct PDF links.
-    *   **Deep Crawl**: Visits the paper's landing page to find the PDF button, with capabilities to handle interactive challenges (CAPTCHAs).
+    *   **Deep Crawl**: Visits the paper's landing page in a real Chrome session (`undetected-chromedriver`) to find the PDF, with full publisher-specific rules (JASA, IEEE, Wiley, Elsevier, MDPI, Springer, Nature, ResearchGate, ISCA, Frontiers, OUP, ASME, JSTAGE, HAL, …). Bypasses Cloudflare bot walls and JS-rendered download buttons by using the browser's own `fetch()` (cookies + Cloudflare clearance attach automatically when running from an IP-authenticated subscriber network).
     *   DOI resolution via Unpaywall or SciHub fallbacks.
 *   **PDF Processor**: Extracts raw text from the downloaded PDF files.
 *   **AI Analyzer**: Sends the extracted text to an LLM (OpenAI or Ollama) with a dynamically constructed prompt based on your custom questions. It returns structured JSON data.
