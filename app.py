@@ -134,6 +134,21 @@ def main():
             interactive_mode = st.checkbox("🙋‍♂️ Interactive Mode (I am present to solve CAPTCHAs)", value=True, help="If checked, the system will pause and wait for you when it detects a CAPTCHA or Cloudflare block.")
         with col_sound:
             sound_alert = st.checkbox("🔔 Sound Alert", value=False, help="Play a sound when a CAPTCHA is detected.")
+
+        # Multi-mirror Sci-Hub fallback (opt-in, copyright-grey — see
+        # services/scihub_service.py for the legal note).
+        allow_scihub = st.checkbox(
+            "⚠️ Allow Sci-Hub fallback (legal-grey, off by default)",
+            value=False,
+            help=(
+                "When Unpaywall has no open-access copy, fall back to "
+                "Sci-Hub mirrors (sci-hub.ren/.ru/.st/.cat/sci.bban.top). "
+                "Distribution of these papers may breach copyright in your "
+                "jurisdiction; use only when you have lawful access (e.g. "
+                "your institution is subscribed and your library cannot "
+                "deliver the file electronically)."
+            ),
+        )
         
         if st.button("🚀 Start Search & Download", type="primary"):
             if not query:
@@ -219,11 +234,11 @@ def main():
                                      st.toast(f"✅ Downloaded via Deep Crawl: {title[:30]}...", icon="✅")
                                      continue
 
-                        # 2. Try Download by DOI (PyPaperRetriever)
+                        # 2. Try Download by DOI (PyPaperRetriever, +SciHub if opted-in)
                         doi = paper.get('DOI', 'N/A')
                         if doi != 'N/A':
                              status_text.text(f"Trying DOI Download ({doi}) for: {title[:30]}...")
-                             res = services['downloader'].download_by_doi(doi, title)
+                             res = services['downloader'].download_by_doi(doi, title, allow_scihub=allow_scihub)
                              if res['success']:
                                  downloaded_count += 1
                                  st.toast(f"✅ Downloaded via DOI: {title[:30]}...", icon="✅")
