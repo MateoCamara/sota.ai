@@ -3,6 +3,7 @@ import sys
 import requests
 import re
 from scihub import SciHub
+from services.scihub_service import SciHubService
 
 # Add parent directory to path to import brother packages
 
@@ -65,9 +66,12 @@ class DownloaderService:
                 "source": "Direct URL"
             }
 
-    def download_by_doi(self, doi: str, title: str) -> dict:
+    def download_by_doi(self, doi: str, title: str,
+                        allow_scihub: bool = False) -> dict:
         """
-        Download using pypaperretriever (more robust for DOIs).
+        Download using pypaperretriever (Unpaywall) and, only if
+        `allow_scihub=True`, fall back to the multi-mirror Sci-Hub
+        service. See services/scihub_service.py for the legal note.
         """
         print(f"Downloading via DOI (pypaperretriever): {doi}")
         try:
@@ -84,64 +88,61 @@ class DownloaderService:
             # Clean DOI
             clean_doi = str(doi).strip()
             
-            # Try PyPaperRetriever first (Priority: Unpaywall -> SciHub)
+            # Try PyPaperRetriever first (mainly for the Unpaywall path).
             try:
-                # Using user's email for Unpaywall API (requires valid email)
                 retriever = PaperRetriever(
-                    email="superjorgy007@hotmail.com", 
+                    email=os.getenv("UNPAYWALL_EMAIL", "anonymous@example.com"),
                     doi=clean_doi,
                     download_directory=self.download_dir,
-                    allow_scihub=True
+                    allow_scihub=allow_scihub,
                 )
-                
+
                 result = retriever.download()
-                
-                # Check result properties
+
                 if result and hasattr(result, 'is_downloaded') and result.is_downloaded:
                     return {
                         "success": True,
                         "filepath": getattr(result, 'saved_file_path', self.download_dir),
-                        "source": "Unpaywall/SciHub",
+                        "source": "Unpaywall" + ("/SciHub-pypaper" if allow_scihub else ""),
                         "message": "Download successful via DOI"
                     }
                 else:
                     raise Exception("PyPaperRetriever returned failure")
-                    
+
             except Exception as e:
-                print(f"⚠️ PyPaperRetriever failed ({e}). Falling back to direct SciHub...")
-                
-                # Fallback to direct SciHub
-                sh = SciHub()
-                # Check if we should sanitize title for filename
-                output_name = re.sub(r'[^\w\s-]', '', title).strip() + ".pdf" if title else f"{clean_doi.replace('/', '_')}.pdf"
-                output_path = os.path.join(self.download_dir, output_name)
-                
-                try:
-                    # scihub download returns a dictionary or bytes?
-                    # The library usually saves to file if path provided
-                    sh_result = sh.download(clean_doi, path=output_path)
-                    
-                    if os.path.exists(output_path):
-                         return {
-                            "success": True,
-                            "filepath": output_path,
-                            "source": "Direct SciHub",
-                            "message": "Download successful via Direct SciHub"
-                        }
-                    else:
-                         return {
-                            "success": False,
-                            "filepath": None,
-                            "message": "Direct SciHub failed to save file",
-                            "source": "Direct SciHub"
-                        }
-                except Exception as sh_e:
-                     return {
+                if not allow_scihub:
+                    return {
                         "success": False,
                         "filepath": None,
-                        "message": f"All DOI methods failed. PyPaperRetriever: {e}, SciHub: {sh_e}",
-                        "source": "DOI-Fallback-Failed"
+                        "message": f"Unpaywall returned no OA copy; SciHub not enabled. ({e})",
+                        "source": "DOI-Unpaywall-Failed",
                     }
+                print(f"⚠️ PyPaperRetriever failed ({e}). Falling back to multi-mirror SciHub…")
+
+                # Multi-mirror SciHub fallback.
+                # NB: pypaperretriever hardcodes sci-hub.se which is DNS-blocked
+                # in several countries (Spain, Italy, …). Our service tries
+                # sci-hub.ren / .ru / .st / .cat / sci.bban.top in turn.
+                output_name = (
+                    re.sub(r'[^\w\s-]', '', title).strip() + ".pdf"
+                    if title else f"{clean_doi.replace('/', '_')}.pdf"
+                )
+                sh = SciHubService(download_dir=self.download_dir)
+                r = sh.download(clean_doi, output_filename=output_name,
+                                allow_scihub=True)
+                if r.get("success"):
+                    return {
+                        "success": True,
+                        "filepath": r["filepath"],
+                        "source": r["source"],
+                        "message": r["message"],
+                    }
+                return {
+                    "success": False,
+                    "filepath": None,
+                    "message": f"All DOI methods failed. PyPaperRetriever: {e}; SciHub: {r['message']}",
+                    "source": "DOI-Fallback-Failed",
+                }
         except Exception as e:
             return {
                 "success": False,

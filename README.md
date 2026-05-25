@@ -33,7 +33,9 @@ The system is built with a modular architecture:
 *   **Downloader**: A robust download engine that attempts multiple strategies:
     *   Direct PDF links.
     *   **Deep Crawl**: Visits the paper's landing page to find the PDF button, with capabilities to handle interactive challenges (CAPTCHAs).
-    *   DOI resolution via Unpaywall or SciHub fallbacks.
+    *   DOI resolution via Unpaywall and, when explicitly enabled, a multi-mirror Sci-Hub fallback (`sci-hub.ren / .ru / .st / .cat / sci.bban.top`).
+
+> ⚠️ **Sci-Hub fallback (opt-in)**. Distribution of papers obtained through Sci-Hub may breach copyright in your jurisdiction; several countries (Spain, Italy, France, the UK, India, …) block individual mirrors at the DNS level by court order. The toggle is **off by default** and must be ticked explicitly per session. Use it only when you have lawful access to the paper (e.g. your institution is subscribed but cannot deliver the file electronically). See `services/scihub_service.py` for the full legal note.
 *   **PDF Processor**: Extracts raw text from the downloaded PDF files.
 *   **AI Analyzer**: Sends the extracted text to an LLM (OpenAI or Ollama) with a dynamically constructed prompt based on your custom questions. It returns structured JSON data.
 
